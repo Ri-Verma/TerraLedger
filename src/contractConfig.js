@@ -21,11 +21,21 @@ export const DEPLOY_BLOCK = import.meta.env.VITE_NETWORK === 'sepolia' ? 1072542
 /**
  * Free, browser-accessible Sepolia RPC endpoints (no API key required).
  * Exported so fetchEventsChunked can rotate across them on 429 / error.
+ *
+ * Verified free & CORS-safe (August 2026):
+ *   - publicnode.com  — no key, generous limits
+ *   - 1rpc.io        — no key, privacy-focused relay
+ *   - omniatech.io   — no key, public endpoint
+ *
+ * REMOVED (do not add back):
+ *   - sepolia.drpc.org  → HTTP 400 "chain not on free plan"
+ *   - rpc.sepolia.org   → inconsistent CORS
+ *   - rpc2.sepolia.org  → unreliable
  */
 export const SEPOLIA_RPC_POOL = [
   "https://ethereum-sepolia-rpc.publicnode.com",
-  "https://sepolia.drpc.org",
-  "https://rpc2.sepolia.org",
+  "https://1rpc.io/sepolia",
+  "https://endpoints.omniatech.io/v1/eth/sepolia/public",
 ];
 
 // Internal rotating index — advances each time getReadOnlyProvider() is called
