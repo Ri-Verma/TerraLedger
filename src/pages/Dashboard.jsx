@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS, CONTRACT_ABI, getReadOnlyProvider, DEPLOY_BLOCK } from '../contractConfig';
 import { fetchEventsChunked } from '../utils/chunkedProvider';
+import { SkeletonStatCard } from '../components/Skeleton';
 import terraLogo from '../icons/SmallSquareLogoJpg.jpg';
 import './Dashboard.css';
 
@@ -10,10 +11,11 @@ function Dashboard() {
   const navigate = useNavigate();
 
   const [stats, setStats] = useState({
-    properties: '...',
-    transfers: '...',
+    properties: '0',
+    transfers: '0',
     security: '100%'
   });
+  const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -39,6 +41,8 @@ function Dashboard() {
         });
       } catch (err) {
         console.error('Dashboard stats error:', err);
+      } finally {
+        setStatsLoading(false);
       }
     };
     fetchStats();
@@ -111,18 +115,28 @@ function Dashboard() {
             </div>
           </div>
           <div className="hero-stats">
-            <div className="stat-card">
-              <div className="stat-value">{stats.properties}</div>
-              <div className="stat-label">Registered Properties</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{stats.transfers}</div>
-              <div className="stat-label">Completed Transfers</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{stats.security}</div>
-              <div className="stat-label">On-chain Verification</div>
-            </div>
+            {statsLoading ? (
+              <>
+                <SkeletonStatCard />
+                <SkeletonStatCard />
+                <SkeletonStatCard />
+              </>
+            ) : (
+              <>
+                <div className="stat-card">
+                  <div className="stat-value">{stats.properties}</div>
+                  <div className="stat-label">Registered Properties</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-value">{stats.transfers}</div>
+                  <div className="stat-label">Completed Transfers</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-value">{stats.security}</div>
+                  <div className="stat-label">On-chain Verification</div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>

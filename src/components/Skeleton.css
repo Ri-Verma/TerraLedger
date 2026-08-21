@@ -164,3 +164,66 @@
   gap: 0.75rem;
   flex-wrap: wrap;
 }
+
+/* ── SkeletonKPI ─────────────────────────────────────────────────────────── */
+
+.skeleton-kpi {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+  background: var(--sk-card-bg);
+  border: 1px solid var(--sk-card-border);
+  border-radius: 16px;
+}
+
+/* ── SkeletonChartCard ───────────────────────────────────────────────────── */
+
+.skeleton-chart-card {
+  background: var(--sk-card-bg);
+  border: 1px solid var(--sk-card-border);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.skeleton-chart-card--wide {
+  flex: 2;
+}
+
+.skeleton-chart-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* The bar container: sits at the bottom like a real bar chart */
+.skeleton-chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+  height: 140px;
+  padding-top: 0.5rem;
+}
+
+/* Each bar rises and falls with a staggered delay — like a live equaliser */
+.skeleton-chart-bar {
+  flex: 1;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(
+    180deg,
+    var(--sk-shine) 0%,
+    var(--sk-base) 100%
+  );
+  animation: sk-bar-rise 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes sk-bar-rise {
+  0%   { height: 15%; opacity: 0.5; }
+  100% { height: 85%; opacity: 1; }
+}
+

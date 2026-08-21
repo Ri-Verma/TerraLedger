@@ -7,6 +7,11 @@ import {
 } from 'recharts';
 import { CONTRACT_ADDRESS, CONTRACT_ABI, getReadOnlyProvider, DEPLOY_BLOCK } from '../contractConfig';
 import { fetchEventsChunked } from '../utils/chunkedProvider';
+import {
+  SkeletonStatCard,
+  SkeletonChartCard,
+  SkeletonTransactionRow,
+} from '../components/Skeleton';
 import './TransactionHistory.css';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -173,86 +178,104 @@ function TransactionHistory() {
 
           {/* Stats */}
           <div className="stats-overview">
-            <div className="stat-box">
-              <div className="stat-number">{displayTotalTx}</div>
-              <div className="stat-label">Total Transactions</div>
-            </div>
-            <div className="stat-box">
-              <div className="stat-number">{displayTransfers}</div>
-              <div className="stat-label">Transfers</div>
-            </div>
-            <div className="stat-box">
-              <div className="stat-number">{displayRegs}</div>
-              <div className="stat-label">Registrations</div>
-            </div>
-            <div className="stat-box">
-              <div className="stat-number">100%</div>
-              <div className="stat-label">Success Rate</div>
-            </div>
-            <div className="stat-box">
-              <div className="stat-number" title={totalGasUsed.toString()}>{displayGas}</div>
-              <div className="stat-label">Total Gas Used</div>
-            </div>
-            <div className="stat-box">
-              <div className="stat-number">{displayAvgGas}</div>
-              <div className="stat-label">Avg Gas / Tx</div>
-            </div>
+            {loading ? (
+              <>
+                <SkeletonStatCard /><SkeletonStatCard /><SkeletonStatCard />
+                <SkeletonStatCard /><SkeletonStatCard /><SkeletonStatCard />
+              </>
+            ) : (
+              <>
+                <div className="stat-box">
+                  <div className="stat-number">{displayTotalTx}</div>
+                  <div className="stat-label">Total Transactions</div>
+                </div>
+                <div className="stat-box">
+                  <div className="stat-number">{displayTransfers}</div>
+                  <div className="stat-label">Transfers</div>
+                </div>
+                <div className="stat-box">
+                  <div className="stat-number">{displayRegs}</div>
+                  <div className="stat-label">Registrations</div>
+                </div>
+                <div className="stat-box">
+                  <div className="stat-number">100%</div>
+                  <div className="stat-label">Success Rate</div>
+                </div>
+                <div className="stat-box">
+                  <div className="stat-number" title={totalGasUsed.toString()}>{displayGas}</div>
+                  <div className="stat-label">Total Gas Used</div>
+                </div>
+                <div className="stat-box">
+                  <div className="stat-number">{displayAvgGas}</div>
+                  <div className="stat-label">Avg Gas / Tx</div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Charts row */}
           <div className="th-charts">
-            <div className="th-chart-card th-chart-card--wide">
-              <div className="th-chart-card__header">
-                <span className="th-dot th-dot--teal" />
-                Transaction Activity by Day
-              </div>
-              <ResponsiveContainer width="100%" height={190}>
-                <AreaChart data={activityData} margin={{ top: 8, right: 10, left: -10, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="thRegGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#00e5cc" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="#00e5cc" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="thTrfGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#a855f7" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} axisLine={false} />
-                  <Tooltip content={<DarkTooltip />} />
-                  <Area type="monotone" dataKey="Registrations" stroke="#00e5cc" strokeWidth={2} fill="url(#thRegGrad)" dot={false} />
-                  <Area type="monotone" dataKey="Transfers" stroke="#a855f7" strokeWidth={2} fill="url(#thTrfGrad)" dot={false} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+            {loading ? (
+              <>
+                <SkeletonChartCard wide bars={7} />
+                <SkeletonChartCard bars={7} />
+              </>
+            ) : (
+              <>
+                <div className="th-chart-card th-chart-card--wide">
+                  <div className="th-chart-card__header">
+                    <span className="th-dot th-dot--teal" />
+                    Transaction Activity by Day
+                  </div>
+                  <ResponsiveContainer width="100%" height={190}>
+                    <AreaChart data={activityData} margin={{ top: 8, right: 10, left: -10, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="thRegGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#00e5cc" stopOpacity={0.35} />
+                          <stop offset="95%" stopColor="#00e5cc" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="thTrfGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#a855f7" stopOpacity={0.35} />
+                          <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} axisLine={false} />
+                      <YAxis tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} axisLine={false} />
+                      <Tooltip content={<DarkTooltip />} />
+                      <Area type="monotone" dataKey="Registrations" stroke="#00e5cc" strokeWidth={2} fill="url(#thRegGrad)" dot={false} />
+                      <Area type="monotone" dataKey="Transfers" stroke="#a855f7" strokeWidth={2} fill="url(#thTrfGrad)" dot={false} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
 
-            <div className="th-chart-card">
-              <div className="th-chart-card__header">
-                <span className="th-dot th-dot--amber" />
-                Gas Consumption by Day
-              </div>
-              <ResponsiveContainer width="100%" height={190}>
-                <BarChart data={gasData} margin={{ top: 8, right: 10, left: -10, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="thGasGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.9} />
-                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.3} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} axisLine={false} />
-                  <Tooltip content={<DarkTooltip unit=" gas" />} />
-                  <Bar dataKey="gas" name="Gas" fill="url(#thGasGrad)" radius={[4, 4, 0, 0]}>
-                    {gasData.map((_, i) => (
-                      <Cell key={i} fill="url(#thGasGrad)" />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+                <div className="th-chart-card">
+                  <div className="th-chart-card__header">
+                    <span className="th-dot th-dot--amber" />
+                    Gas Consumption by Day
+                  </div>
+                  <ResponsiveContainer width="100%" height={190}>
+                    <BarChart data={gasData} margin={{ top: 8, right: 10, left: -10, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="thGasGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.9} />
+                          <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.3} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} axisLine={false} />
+                      <YAxis tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} axisLine={false} />
+                      <Tooltip content={<DarkTooltip unit=" gas" />} />
+                      <Bar dataKey="gas" name="Gas" fill="url(#thGasGrad)" radius={[4, 4, 0, 0]}>
+                        {gasData.map((_, i) => (
+                          <Cell key={i} fill="url(#thGasGrad)" />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -271,7 +294,13 @@ function TransactionHistory() {
 
         <div className="transactions-list">
           {loading ? (
-            <p style={{ color: 'var(--text-muted)', padding: '20px 0' }}>Loading transactions from blockchain...</p>
+            <>
+              <SkeletonTransactionRow />
+              <SkeletonTransactionRow />
+              <SkeletonTransactionRow />
+              <SkeletonTransactionRow />
+              <SkeletonTransactionRow />
+            </>
           ) : sortedTransactions.length === 0 ? (
             <div className="th-empty">
               <div className="th-empty__icon">⛓</div>

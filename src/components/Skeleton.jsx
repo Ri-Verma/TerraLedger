@@ -126,3 +126,47 @@ export function SkeletonPropertyCard({ className = '' }) {
     </div>
   );
 }
+
+/**
+ * SkeletonKPI — mimics a KPI/stat card with an icon bubble, big number, and label.
+ * Used in ImmutableRecords and AdminTelemetry.
+ */
+export function SkeletonKPI({ className = '' }) {
+  return (
+    <div className={`skeleton-kpi ${className}`} aria-hidden="true">
+      <Skeleton height="2.5rem" width="2.5rem" borderRadius="50%" style={{ flexShrink: 0 }} />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+        <Skeleton height="1.8rem" width="45%" borderRadius="8px" />
+        <Skeleton height="0.7rem" width="70%" borderRadius="4px" />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * SkeletonChartCard — mimics a chart panel with a header and animated rising bars.
+ * The bars use staggered CSS animation delays to look like a live chart rendering.
+ * @param {number} bars  — number of animated bar columns to render
+ * @param {boolean} wide — if true, applies the wide-card class
+ */
+export function SkeletonChartCard({ bars = 7, wide = false, className = '' }) {
+  return (
+    <div className={`skeleton-chart-card ${wide ? 'skeleton-chart-card--wide' : ''} ${className}`} aria-hidden="true">
+      {/* Chart card header */}
+      <div className="skeleton-chart-card__header">
+        <Skeleton height="0.65rem" width="0.65rem" borderRadius="50%" />
+        <Skeleton height="0.75rem" width="40%" borderRadius="4px" />
+      </div>
+      {/* Animated bar chart illusion */}
+      <div className="skeleton-chart-bars">
+        {Array.from({ length: bars }).map((_, i) => (
+          <div
+            key={i}
+            className="skeleton-chart-bar"
+            style={{ animationDelay: `${i * 0.12}s` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}

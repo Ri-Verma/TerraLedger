@@ -1,4 +1,4 @@
-﻿import { ethers } from 'ethers';
+import { ethers } from 'ethers';
 
 // Contract addresses per environment
 const CONTRACT_ADDRESS_LOCAL   = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
@@ -20,20 +20,38 @@ export const DEPLOY_BLOCK = import.meta.env.VITE_NETWORK === 'sepolia' ? 1072542
 
 /**
  * Returns a read-only provider for fetching blockchain data.
- * Priority: MetaMask (BrowserProvider) â†’ Public RPC (Sepolia) â†’ Localhost fallback
- * This allows wallet-less users (mobile, incognito) to still view all records.
+ *
+ * Priority:
+ *   1. MetaMask / injected wallet (BrowserProvider) — fastest, uses user's own node
+ *   2. ethers FallbackProvider across 3 free public Sepolia RPC nodes — for wallet-less users.
+ *      Ethers will round-robin and failover automatically, so a 429 on one node
+ *      triggers a retry on the next, preventing blank pages.
+ *   3. Local Hardhat node (localhost:8545) — for local development
  */
 export function getReadOnlyProvider() {
   if (window.ethereum) {
     return new ethers.BrowserProvider(window.ethereum);
   }
-  
-  // Use a public RPC node instead of Alchemy to avoid the strict 10-block eth_getLogs limit
-  const rpcUrl = import.meta.env.VITE_NETWORK === 'sepolia'
-    ? "https://ethereum-sepolia-rpc.publicnode.com"
-    : "http://127.0.0.1:8545";
-    
-  return new ethers.JsonRpcProvider(rpcUrl);
+
+  if (import.meta.env.VITE_NETWORK === 'sepolia') {
+    // Three free, no-key-required Sepolia public RPC nodes.
+    // FallbackProvider retries across them automatically on rate-limit or timeout.
+    const rpcUrls = [
+      "https://ethereum-sepolia-rpc.publicnode.com",
+      "https://rpc.sepolia.org",
+      "https://sepolia.drpc.org",
+    ];
+    const providers = rpcUrls.map((url, i) => ({
+      provider: new ethers.JsonRpcProvider(url),
+      priority: i + 1,       // lower = tried first
+      stallTimeout: 2000,    // ms before trying next provider in parallel
+      weight: 1,
+    }));
+    return new ethers.FallbackProvider(providers, 1); // quorum = 1 (first answer wins)
+  }
+
+  // Local Hardhat dev node
+  return new ethers.JsonRpcProvider("http://127.0.0.1:8545");
 }
 
 

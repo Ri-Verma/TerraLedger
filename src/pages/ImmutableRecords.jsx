@@ -7,6 +7,11 @@ import {
 import { CONTRACT_ADDRESS, CONTRACT_ABI, getReadOnlyProvider, DEPLOY_BLOCK } from '../contractConfig';
 import { verifyDocumentAgainstChain } from '../utils/verifyDocument';
 import { fetchEventsChunked } from '../utils/chunkedProvider';
+import {
+  SkeletonKPI,
+  SkeletonChartCard,
+  SkeletonCard,
+} from '../components/Skeleton';
 import './ImmutableRecords.css';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -167,107 +172,129 @@ function ImmutableRecords() {
 
           {/* KPI row */}
           <div className="ir-kpis">
-            <div className="ir-kpi">
-              <div className="ir-kpi__icon ir-kpi__icon--teal">🏠</div>
-              <div>
-                <div className="ir-kpi__val">{totalRegistrations}</div>
-                <div className="ir-kpi__label">Total Properties</div>
-              </div>
-            </div>
-            <div className="ir-kpi">
-              <div className="ir-kpi__icon ir-kpi__icon--purple">👤</div>
-              <div>
-                <div className="ir-kpi__val">{uniqueOwners}</div>
-                <div className="ir-kpi__label">Unique Owners</div>
-              </div>
-            </div>
-            <div className="ir-kpi">
-              <div className="ir-kpi__icon ir-kpi__icon--amber">🔒</div>
-              <div>
-                <div className="ir-kpi__val">100%</div>
-                <div className="ir-kpi__label">Immutable</div>
-              </div>
-            </div>
-            <div className="ir-kpi">
-              <div className="ir-kpi__icon ir-kpi__icon--blue">⛓</div>
-              <div>
-                <div className="ir-kpi__val">{latestBlock === 'N/A' ? 'N/A' : typeof latestBlock === 'number' ? latestBlock.toLocaleString() : latestBlock}</div>
-                <div className="ir-kpi__label">Latest Block</div>
-              </div>
-            </div>
+            {loading ? (
+              <>
+                <SkeletonKPI /><SkeletonKPI /><SkeletonKPI /><SkeletonKPI />
+              </>
+            ) : (
+              <>
+                <div className="ir-kpi">
+                  <div className="ir-kpi__icon ir-kpi__icon--teal">🏠</div>
+                  <div>
+                    <div className="ir-kpi__val">{totalRegistrations}</div>
+                    <div className="ir-kpi__label">Total Properties</div>
+                  </div>
+                </div>
+                <div className="ir-kpi">
+                  <div className="ir-kpi__icon ir-kpi__icon--purple">👤</div>
+                  <div>
+                    <div className="ir-kpi__val">{uniqueOwners}</div>
+                    <div className="ir-kpi__label">Unique Owners</div>
+                  </div>
+                </div>
+                <div className="ir-kpi">
+                  <div className="ir-kpi__icon ir-kpi__icon--amber">🔒</div>
+                  <div>
+                    <div className="ir-kpi__val">100%</div>
+                    <div className="ir-kpi__label">Immutable</div>
+                  </div>
+                </div>
+                <div className="ir-kpi">
+                  <div className="ir-kpi__icon ir-kpi__icon--blue">⛓</div>
+                  <div>
+                    <div className="ir-kpi__val">{latestBlock === 'N/A' ? 'N/A' : typeof latestBlock === 'number' ? latestBlock.toLocaleString() : latestBlock}</div>
+                    <div className="ir-kpi__label">Latest Block</div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Charts row */}
           <div className="ir-charts">
-            {/* Timeline */}
-            <div className="ir-chart-card ir-chart-card--wide">
-              <div className="ir-chart-card__header">
-                <span className="ir-dot ir-dot--teal" />
-                Registration &amp; Transfer Activity
-              </div>
-              <ResponsiveContainer width="100%" height={200}>
-                <AreaChart data={timelineData} margin={{ top: 8, right: 10, left: -10, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="regGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#00e5cc" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#00e5cc" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="trfGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#a855f7" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="period" tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} axisLine={false} />
-                  <Tooltip content={<DarkTooltip />} />
-                  <Legend wrapperStyle={{ fontSize: 12, color: '#94a3b8' }} />
-                  <Area type="monotone" dataKey="Registrations" stroke="#00e5cc" strokeWidth={2} fill="url(#regGrad)" dot={false} />
-                  <Area type="monotone" dataKey="Transfers" stroke="#a855f7" strokeWidth={2} fill="url(#trfGrad)" dot={false} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+            {loading ? (
+              <>
+                <SkeletonChartCard wide bars={6} />
+                <SkeletonChartCard bars={5} />
+              </>
+            ) : (
+              <>
+                {/* Timeline */}
+                <div className="ir-chart-card ir-chart-card--wide">
+                  <div className="ir-chart-card__header">
+                    <span className="ir-dot ir-dot--teal" />
+                    Registration &amp; Transfer Activity
+                  </div>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <AreaChart data={timelineData} margin={{ top: 8, right: 10, left: -10, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="regGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#00e5cc" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#00e5cc" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="trfGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#a855f7" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="period" tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} axisLine={false} />
+                      <YAxis tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} axisLine={false} />
+                      <Tooltip content={<DarkTooltip />} />
+                      <Legend wrapperStyle={{ fontSize: 12, color: '#94a3b8' }} />
+                      <Area type="monotone" dataKey="Registrations" stroke="#00e5cc" strokeWidth={2} fill="url(#regGrad)" dot={false} />
+                      <Area type="monotone" dataKey="Transfers" stroke="#a855f7" strokeWidth={2} fill="url(#trfGrad)" dot={false} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
 
-            {/* Pie */}
-            <div className="ir-chart-card">
-              <div className="ir-chart-card__header">
-                <span className="ir-dot ir-dot--purple" />
-                Property Type Distribution
-              </div>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie
-                    data={typeData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={55}
-                    outerRadius={80}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    {typeData.map((_, i) => (
-                      <Cell key={i} fill={TYPE_COLORS[i % TYPE_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{ background: 'rgba(10,12,22,0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
-                    itemStyle={{ color: '#e2e8f0' }}
-                  />
-                  <Legend
-                    wrapperStyle={{ fontSize: 11, color: '#94a3b8' }}
-                    iconType="circle"
-                    iconSize={8}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+                {/* Pie */}
+                <div className="ir-chart-card">
+                  <div className="ir-chart-card__header">
+                    <span className="ir-dot ir-dot--purple" />
+                    Property Type Distribution
+                  </div>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={typeData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={80}
+                        paddingAngle={3}
+                        dataKey="value"
+                      >
+                        {typeData.map((_, i) => (
+                          <Cell key={i} fill={TYPE_COLORS[i % TYPE_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{ background: 'rgba(10,12,22,0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
+                        itemStyle={{ color: '#e2e8f0' }}
+                      />
+                      <Legend
+                        wrapperStyle={{ fontSize: 11, color: '#94a3b8' }}
+                        iconType="circle"
+                        iconSize={8}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
         {/* ── Records Grid ────────────────────────────────────────────────── */}
         <div className="records-grid">
           {loading ? (
-            <p style={{ color: 'var(--text-muted)', padding: '20px 0' }}>Loading immutable records from blockchain...</p>
+            <>
+              <SkeletonCard rows={7} />
+              <SkeletonCard rows={7} />
+              <SkeletonCard rows={7} />
+              <SkeletonCard rows={7} />
+            </>
           ) : records.length === 0 ? (
             <p style={{ color: 'var(--text-muted)', padding: '20px 0' }}>No records found on the blockchain.</p>
           ) : records.map((property) => (
