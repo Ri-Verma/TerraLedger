@@ -9,10 +9,10 @@
  * @param {ethers.ContractEventName} filter - The event filter from contract.filters.EventName().
  * @param {number} startBlock - The block to start scanning from (use DEPLOY_BLOCK).
  * @param {ethers.Provider} provider - The ethers provider (used to get latest block number).
- * @param {number} chunkSize - Max blocks per request (default 40000, safely under 50k limit).
+ * @param {number} chunkSize - Max blocks per request (default 9000, safely under 10k limit).
  * @returns {Promise<Array>} - A flat array of all matching event logs.
  */
-export async function fetchEventsChunked(contract, filter, startBlock, provider, chunkSize = 40000) {
+export async function fetchEventsChunked(contract, filter, startBlock, provider, chunkSize = 9000) {
   const latestBlock = await provider.getBlockNumber();
 
   const chunks = [];

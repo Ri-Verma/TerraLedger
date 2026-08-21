@@ -27,3 +27,8 @@ task.md
 implementation_plan.md
 walkthrough.md
 /project-docs/
+/docs/
+*.pptx
+mermaid-diagram-*.png
+
+
