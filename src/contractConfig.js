@@ -19,14 +19,30 @@ export const CONTRACT_ADDRESS =
 export const DEPLOY_BLOCK = import.meta.env.VITE_NETWORK === 'sepolia' ? 10725429 : 0;
 
 /**
+ * Free, browser-accessible Sepolia RPC endpoints (no API key required).
+ * Exported so fetchEventsChunked can rotate across them on 429 / error.
+ */
+export const SEPOLIA_RPC_POOL = [
+  "https://ethereum-sepolia-rpc.publicnode.com",
+  "https://sepolia.drpc.org",
+  "https://rpc2.sepolia.org",
+];
+
+// Internal rotating index — advances each time getReadOnlyProvider() is called
+// without MetaMask, spreading the load across nodes over time.
+let _rpcIndex = 0;
+
+/**
  * Returns a read-only provider for fetching blockchain data.
  *
  * Priority:
- *   1. MetaMask / injected wallet (BrowserProvider) — fastest, uses user's own node
- *   2. ethers FallbackProvider across 3 free public Sepolia RPC nodes — for wallet-less users.
- *      Ethers will round-robin and failover automatically, so a 429 on one node
- *      triggers a retry on the next, preventing blank pages.
- *   3. Local Hardhat node (localhost:8545) — for local development
+ *   1. MetaMask / injected wallet (BrowserProvider) — fastest, no rate limits.
+ *   2. Single JsonRpcProvider rotating across SEPOLIA_RPC_POOL for wallet-less
+ *      users. Rotation is round-robin per call, and fetchEventsChunked will
+ *      switch to the next node automatically when a chunk fails with 429.
+ *      NOTE: FallbackProvider was tried but is incompatible with eth_getLogs /
+ *            queryFilter — it silently fails quorum matching across nodes.
+ *   3. Local Hardhat node (localhost:8545) — for local development.
  */
 export function getReadOnlyProvider() {
   if (window.ethereum) {
@@ -34,20 +50,9 @@ export function getReadOnlyProvider() {
   }
 
   if (import.meta.env.VITE_NETWORK === 'sepolia') {
-    // Three free, no-key-required Sepolia public RPC nodes.
-    // FallbackProvider retries across them automatically on rate-limit or timeout.
-    const rpcUrls = [
-      "https://ethereum-sepolia-rpc.publicnode.com",
-      "https://rpc.sepolia.org",
-      "https://sepolia.drpc.org",
-    ];
-    const providers = rpcUrls.map((url, i) => ({
-      provider: new ethers.JsonRpcProvider(url),
-      priority: i + 1,       // lower = tried first
-      stallTimeout: 2000,    // ms before trying next provider in parallel
-      weight: 1,
-    }));
-    return new ethers.FallbackProvider(providers, 1); // quorum = 1 (first answer wins)
+    const url = SEPOLIA_RPC_POOL[_rpcIndex % SEPOLIA_RPC_POOL.length];
+    _rpcIndex++;
+    return new ethers.JsonRpcProvider(url);
   }
 
   // Local Hardhat dev node
