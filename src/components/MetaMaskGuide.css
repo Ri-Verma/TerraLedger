@@ -1,0 +1,548 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   MetaMask Guide Modal
+   Full-screen overlay popup that appears on first visit.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Overlay backdrop ───────────────────────────────────────────────────────── */
+
+.guide-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: guide-fade-in 0.35s ease;
+}
+
+@keyframes guide-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Modal shell ────────────────────────────────────────────────────────────── */
+
+.guide-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.04);
+  width: 100%;
+  max-width: 780px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: guide-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes guide-slide-up {
+  from { opacity: 0; transform: translateY(32px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+
+.guide-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 28px 0;
+}
+
+.guide-header__left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.guide-fox-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.4));
+}
+
+.guide-title {
+  font-size: clamp(18px, 3vw, 22px);
+  font-weight: 750;
+  color: var(--text);
+  margin: 0 0 4px;
+  line-height: 1.25;
+}
+
+.guide-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.guide-close {
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+
+.guide-close:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+/* ── Live detection badge ───────────────────────────────────────────────────── */
+
+.guide-detection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 28px 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.guide-detection--ok {
+  background: rgba(0, 229, 204, 0.1);
+  border: 1px solid rgba(0, 229, 204, 0.3);
+  color: var(--text);
+}
+
+.guide-detection--warn {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: var(--text);
+}
+
+.guide-detection strong {
+  white-space: nowrap;
+}
+
+.guide-detection span:last-child {
+  color: var(--text-muted);
+}
+
+/* Pulsing dot */
+.guide-detection__pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: pulse-ring 1.8s ease-out infinite;
+}
+
+.pulse--green {
+  background: #00e5cc;
+  box-shadow: 0 0 0 0 rgba(0, 229, 204, 0.5);
+}
+
+.pulse--amber {
+  background: #f59e0b;
+  box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
+}
+
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 currentColor; opacity: 1; }
+  70%  { box-shadow: 0 0 0 8px transparent; opacity: 0.6; }
+  100% { box-shadow: 0 0 0 0 transparent; opacity: 1; }
+}
+
+/* ── Scrollable body ────────────────────────────────────────────────────────── */
+
+.guide-body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+/* ── Access comparison grid ─────────────────────────────────────────────────── */
+
+.guide-access-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.guide-access-card {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.guide-access-card--no {
+  background: rgba(100, 116, 139, 0.06);
+}
+
+.guide-access-card--yes {
+  background: rgba(0, 229, 204, 0.06);
+  border-color: rgba(0, 229, 204, 0.25);
+}
+
+.guide-access-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guide-access-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.guide-access-card__title {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.guide-access-card__sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.guide-access-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.guide-access-list li {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.guide-access-list li:has(span:first-child, *:first-child) {}
+
+/* ── Steps section ──────────────────────────────────────────────────────────── */
+
+.guide-steps-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.guide-steps-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.guide-steps-header h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.guide-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  max-width: 220px;
+}
+
+.guide-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--surface-muted);
+  border-radius: 100px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.guide-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00e5cc, #a855f7);
+  border-radius: 100px;
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.guide-progress-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ── Step accordion items ───────────────────────────────────────────────────── */
+
+.guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide-step {
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.guide-step--open {
+  border-color: rgba(0, 229, 204, 0.4);
+}
+
+.guide-step--done {
+  border-color: rgba(0, 229, 204, 0.3);
+  background: rgba(0, 229, 204, 0.04);
+}
+
+.guide-step--done .guide-step__num {
+  background: #00e5cc;
+  color: #0a0c16;
+}
+
+.guide-step__trigger {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.guide-step__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.guide-step__num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.25s, color 0.25s;
+}
+
+.guide-step__icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.guide-step__text {
+  min-width: 0;
+}
+
+.guide-step__title {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.guide-step__summary {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.guide-step__chevron {
+  font-size: 10px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.guide-step__body {
+  padding: 0 16px 16px 16px;
+  border-top: 1px solid var(--border);
+  animation: guide-expand 0.2s ease;
+}
+
+@keyframes guide-expand {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.guide-step__body p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 12px 0;
+}
+
+.guide-step__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.guide-step__link-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.guide-step__link-btn:hover {
+  opacity: 0.85;
+}
+
+.guide-step__done-btn {
+  padding: 8px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.guide-step__done-btn--active {
+  background: rgba(0, 229, 204, 0.12);
+  border-color: rgba(0, 229, 204, 0.4);
+  color: #00e5cc;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────────── */
+
+.guide-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 28px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  flex-wrap: wrap;
+}
+
+.guide-footer__note {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.guide-cta {
+  padding: 11px 26px;
+  background: linear-gradient(135deg, #00e5cc, #a855f7);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s, transform 0.15s;
+  box-shadow: 0 4px 20px rgba(0, 229, 204, 0.3);
+}
+
+.guide-cta:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .guide-header,
+  .guide-body,
+  .guide-footer {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .guide-detection {
+    margin-left: 18px;
+    margin-right: 18px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .guide-access-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-steps-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .guide-progress-wrap {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .guide-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .guide-cta {
+    text-align: center;
+  }
+
+  .guide-header__left {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .guide-fox-icon {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .guide-step__summary {
+    display: none;
+  }
+
+  .guide-modal {
+    border-radius: 18px;
+  }
+}

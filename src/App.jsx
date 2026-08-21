@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import NetworkGuard from './components/NetworkGuard';
@@ -13,9 +13,22 @@ import RoleManager from './pages/RoleManager';
 import { ToastProvider } from './components/Toast';
 import { ThemeProvider } from './context/ThemeContext';
 import AdminTelemetry from './components/AdminTelemetry';
+import MetaMaskGuideModal from './components/MetaMaskGuide';
 import './App.css';
 
 function App() {
+  // Show guide on first visit; user can dismiss to set localStorage flag.
+  // Also exposed as a global so the Navbar '? Guide' button can reopen it.
+  const [guideOpen, setGuideOpen] = useState(
+    () => localStorage.getItem('tl_guide_seen') !== 'true'
+  );
+
+  useEffect(() => {
+    // Allow child components (e.g. Navbar) to reopen the guide via custom event
+    const handleOpen = () => setGuideOpen(true);
+    window.addEventListener('tl:open-guide', handleOpen);
+    return () => window.removeEventListener('tl:open-guide', handleOpen);
+  }, []);
   useEffect(() => {
     if (window.ethereum) {
       const handleAccountsChanged = (accounts) => {
@@ -56,6 +69,7 @@ function App() {
               <Route path="/roles" element={<RoleManager />} />
             </Routes>
             <AdminTelemetry />
+            {guideOpen && <MetaMaskGuideModal onClose={() => setGuideOpen(false)} />}
           </div>
         </Router>
       </ToastProvider>

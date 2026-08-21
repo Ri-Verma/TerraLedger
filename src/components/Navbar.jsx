@@ -76,6 +76,14 @@ function Navbar() {
             </div>
           )}
           <button
+            className="guide-nav-btn"
+            onClick={() => window.dispatchEvent(new Event('tl:open-guide'))}
+            title="Open setup guide"
+            aria-label="Open MetaMask setup guide"
+          >
+            ? Guide
+          </button>
+          <button
             className="theme-toggle"
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
